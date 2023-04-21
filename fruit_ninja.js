@@ -20,7 +20,7 @@ window.addEventListener('load', function init() {
     // Configure WebGL
     gl.viewport(0, 0, canvas.width, canvas.height); // this is the region of the canvas we want to draw on (all of it)
     gl.clearColor(1.0, 1.0, 1.0, 0.0); // setup the background color
-
+    
     // Initialize the WebGL program and data
     gl.program = initProgram();
     initEvents();
@@ -42,7 +42,6 @@ window.addEventListener('load', function init() {
 
     // Set initial values of uniforms
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mat4.create());
-
 });
 
 
@@ -56,32 +55,78 @@ function initProgram() {
         `#version 300 es
         precision mediump float;
 
-        in vec4 aPosition;
-        in vec4 aColor;
-
+        // Matrices
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
 
-        out vec4 vColor;
+        // Light Position
+        const vec4 light = vec4(0, 0, 5, 1);
+
+        // Attributes for the vertex (from VBOs)
+        in vec4 aPosition;
+        in vec3 aNormal;
+        // any other attributes?
+
+        // Vectors (varying variables to vertex shader)
+        out vec3 vNormalVector;
+        out vec3 vLightVector;
+        out vec3 vEyeVector;
 
         void main() {
             vec4 P = uModelViewMatrix * aPosition;
-            // P.z *= 0.1; // hack until we learn about projection
 
-            gl_Position = P;
-            vColor = aColor;
+            vNormalVector = mat3(uModelViewMatrix) * aNormal;
+            vLightVector = light.w == 1.0 ? P.xyz - light.xyz : light.xyz;
+            vEyeVector = -P.xyz;
+
+            gl_Position =  P;
         }`
     );
-    // Fragment Shader
+    // Fragment Shader - Phong Shading and Reflections
     let frag_shader = compileShader(gl, gl.FRAGMENT_SHADER,
         `#version 300 es
         precision mediump float;
 
-        in vec4 vColor;
+        // Light and material properties
+        const vec3 lightColor = vec3(1, 1, 1);
+        const vec4 materialColor = vec4(0, 0, 0, 1);
+        const float materialAmbient = 0.2;
+        const float materialDiffuse = 0.5;
+        const float materialSpecular = 0.3;
+        const float materialShininess = 10.0;
+
+        // Vectors (varying variables from vertex shader)
+        in vec3 vNormalVector;
+        in vec3 vLightVector;
+        in vec3 vEyeVector;
+
+        // Output color
         out vec4 fragColor;
 
         void main() {
-            fragColor = vColor;
+            // Normalize vectors
+            vec3 N = normalize(vNormalVector);
+            vec3 L = normalize(vLightVector);
+            vec3 E = normalize(vEyeVector);
+
+            // Compute lighting
+            float diffuse = dot(-L, N);
+            float specular = 0.0;
+            if (diffuse < 0.0) {
+                diffuse = 0.0;
+            } else {
+                vec3 R = reflect(L, N);
+                specular = pow(max(dot(R, E), 0.0), materialShininess);
+            }
+            
+            // Object color from texture
+			vec4 color = materialColor;
+
+            // Compute final color
+            fragColor.rgb = lightColor * (
+                (materialAmbient + materialDiffuse * diffuse) * color.rgb +
+                materialSpecular * specular);
+            fragColor.a = 1.0;
         }`
     );
 
@@ -92,6 +137,7 @@ function initProgram() {
     // Get the attribute indices
     program.aPosition = gl.getAttribLocation(program, 'aPosition'); // get the vertex shader attribute "aPosition"
     program.aColor = gl.getAttribLocation(program, 'aColor'); // get the vertex attribute color 
+    program.aNormal = gl.getAttribLocation(program, 'aNormal'); // get the vertex attribute color 
 
     // Get uniforms
     program.uModelViewMatrix = gl.getUniformLocation(program, 'uModelViewMatrix');
@@ -119,13 +165,13 @@ function loadModel(filename) {
             gl.vertexAttribPointer(gl.program.aPosition, 3, gl.FLOAT, false, 0, 0); // associate the buffer with "aPosition" as length-2 vectors of floats
             gl.enableVertexAttribArray(gl.program.aPosition); // enable this set of data
 
-            // // Compute normals and load the data onto the GPU and associate with attribute
-            // let normals = calc_normals(positions, raw_model.indices);
-            // let normalBuffer = gl.createBuffer(); // create a new buffer
-            // gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer); // bind to the new buffer
-            // gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW); // load the data into the buffer
-            // gl.vertexAttribPointer(gl.program.aNormal, 3, gl.FLOAT, false, 0, 0); // associate the buffer with "aPosition" as length-2 vectors of floats
-            // gl.enableVertexAttribArray(gl.program.aNormal); // enable this set of data
+            // Compute normals and load the data onto the GPU and associate with attribute
+            let normals = calc_normals(positions, raw_model.indices, false);
+            let normalBuffer = gl.createBuffer(); // create a new buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer); // bind to the new buffer
+            gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW); // load the data into the buffer
+            gl.vertexAttribPointer(gl.program.aNormal, 3, gl.FLOAT, false, 0, 0); // associate the buffer with "aPosition" as length-2 vectors of floats
+            gl.enableVertexAttribArray(gl.program.aNormal); // enable this set of data
 
             // Load the index data onto the GPU
             let indBuffer = gl.createBuffer(); // create a new buffer
@@ -148,22 +194,12 @@ function loadModel(filename) {
  */
 function initEvents() {
     window.addEventListener('resize', onWindowResize)
-}
 
-/**
- * Keep the canvas sized to the window.
- */
-function onWindowResize() {
-    let [w, h] = [window.innerWidth, window.innerHeight];
-    gl.canvas.width = w;
-    gl.canvas.height = h;
-    gl.viewport(0, 0, w, h);
-    updateProjectionMatrix();
 }
 
 
 /**
- * Updates the projection matrix.
+ * Update the projection matrix.
  */
 function updateProjectionMatrix() {
     let aspect = gl.canvas.width / gl.canvas.height;
@@ -171,15 +207,25 @@ function updateProjectionMatrix() {
     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
 }
 
+
+/**
+ * Keep the canvas sized to the window.
+ */
+function onWindowResize() {
+    gl.canvas.width = window.innerWidth;
+    gl.canvas.height = window.innerHeight;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    updateProjectionMatrix();
+}
+
    
+
 /**
  * Render the scene
  */
 function render() {
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    console.log(gl.models)
     for (let [vao, count] of gl.models) {
         gl.bindVertexArray(vao);
         gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
