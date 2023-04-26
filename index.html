@@ -19,7 +19,9 @@
         <style type="text/css">
             body {background-image: url("game_background.jpg");
                 background-repeat: no-repeat;
-                background-size: cover;}
+                background-size: cover;
+                margin: 0;
+                overflow: hidden}
             canvas {border: 1px solid black}
 
             #difficulty {
@@ -32,8 +34,10 @@
             #score {
                 position: absolute;
                 font-size: large;
-                top: 0;
+                top: 10px;
+                left: 50%;
                 color: white;
+                transform: translateX(-50%);
                 font-size: 48px;
             }
 
