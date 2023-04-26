@@ -278,7 +278,7 @@ function initEvents() {
 // }
 
 /**
- * Generates a random number -1 to 1 to be used for a fruits x position
+ * Generates a random number -1 to 1 to be used for a fruits initial x position
  */
 function generateRandomXPosition() {
     return (Math.random() * 2) - 1;
@@ -309,13 +309,12 @@ let willBeTop = isTop();
 /**
  * Moves the object across the screen
  */
-function moveObject(ms) { // need a variable of spawn location, and speed depending on difficulty
+function moveObject(ms) {
     mat4.identity(modelViewMatrix)
     let difficulty = document.getElementById('difficulty').value
-    let speed = 2000;
+    let speed = 500; // bigger the speed the slower the fruit goes
     let resetTime = 7500;
     if (difficulty === "EASY") {
-        // bigger the speed the slower the fruit goes
         resetTime = 7500;
         speed = 2000;
     } else if (difficulty === "NORMAL") {
@@ -323,20 +322,16 @@ function moveObject(ms) { // need a variable of spawn location, and speed depend
         speed = 1000;
     } else {
         resetTime = 1875;
-        speed = 500;
     }
 
     // Initial x and y position of fruit
-    // "/2000" REPRESENTS THE SPEED
     if (willBeTop) {
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [randomXPosition, 1.25, 0.0]); // initial position of fruit
-        // rotates the y axis of the fruit (might not need - last saved time)
-        glMatrix.mat4.rotateY(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 1000);
+        glMatrix.mat4.rotateY(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 1000); // rotates the y axis of the fruit
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, -((ms - lastSavedTime) / speed), 0.0]); // translated position 
     } else {
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [randomXPosition, -1.25, 0.0]); // initial position of fruit
-        // rotates the y axis of the fruit (might not need - last saved time)
-        glMatrix.mat4.rotateY(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 1000);
+        glMatrix.mat4.rotateY(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 1000); // rotates the y axis of the fruit
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, (ms - lastSavedTime) / speed, 0.0]); // translated position 
     }
 
@@ -344,7 +339,7 @@ function moveObject(ms) { // need a variable of spawn location, and speed depend
     glMatrix.mat4.rotateZ(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 3000);
 
     // resets the fruit to a different initial position
-    if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
+    if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value, resets fruit after reaching resetTime threshold
         randomXPosition = generateRandomXPosition();
         willBeTop = isTop();
         lastSavedTime = ms
