@@ -19,8 +19,26 @@
         <style type="text/css">
             body {background-image: url("game_background.jpg");
                 background-repeat: no-repeat;
-                background-size: cover;}
-            canvas {border: 1px solid black}
+                background-size: cover;
+                overflow: hidden}
+
+            #difficulty {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                padding: 0.50em;
+                background-color: rgba(255,255,255,0.5);
+            }
+            #score {
+                position: absolute;
+                font-size: large;
+                top: 10px;
+                left: 50%;
+                color: white;
+                transform: translateX(-50%);
+                font-size: 48px;
+            }
+
         </style>
     </head>
     <body>
@@ -28,5 +46,17 @@
         <canvas id="webgl-canvas" width="400" height="400">
             Your browser doesn't support the HTML5 canvas element.
         </canvas>
+        <div id=controls>
+            <table>
+                <tr>
+                    <td><select id="difficulty">
+                        <option value="EASY">EASY</option>
+                        <option value="NORMAL">NORMAL</option>
+                        <option value="HARD">HARD</option>
+                    </select></td>
+                </tr>
+            </table>
+        </div>
+        <div id="score">0</div>
     </body>
 </html>
