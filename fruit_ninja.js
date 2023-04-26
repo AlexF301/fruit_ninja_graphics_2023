@@ -352,7 +352,7 @@ function moveObject(ms, index) { // need a variable of spawn location, and speed
     // might have to round seconds to the nearest decimal point (or maybe don't convert ms to seconds)
     if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
         randomXPositions = generateRandomsXPositions();
-        willBeTop = willBeTop();
+        willBeTop = isTop();
         lastSavedTime = ms
     }
     // rotates the z axis of the fruit
