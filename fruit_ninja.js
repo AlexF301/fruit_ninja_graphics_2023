@@ -304,7 +304,7 @@ let lastSavedTime = 0.0;
 let randomXPosition = generateRandomXPosition();
 
 // generates on which side (top or bottom) to spawn a fruit
-let generatedTop = isTop();
+let willBeTop = isTop();
 
 /**
  * Moves the object across the screen
@@ -328,7 +328,7 @@ function moveObject(ms) { // need a variable of spawn location, and speed depend
 
     // Initial x and y position of fruit
     // "/2000" REPRESENTS THE SPEED
-    if (generatedTop) {
+    if (willBeTop) {
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [randomXPosition, 1.25, 0.0]); // initial position of fruit
         // rotates the y axis of the fruit (might not need - last saved time)
         glMatrix.mat4.rotateY(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 1000);
@@ -346,7 +346,7 @@ function moveObject(ms) { // need a variable of spawn location, and speed depend
     // resets the fruit to a different initial position
     if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
         randomXPosition = generateRandomXPosition();
-        generatedTop = isTop();
+        willBeTop = isTop();
         lastSavedTime = ms
     }
 
