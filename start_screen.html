@@ -1,0 +1,57 @@
+<!doctype html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <!-- Give the page a title - make sure it is descriptive! -->
+        <title>Welcome Screen</title>
+
+        <!-- Load the code for this example -->
+        <script src="start_screen.js"></script>
+
+        <!-- Style the canvas -->
+        <style type="text/css">
+            body {
+                /* background-image: url("game_background.jpg"); */
+                background-repeat: no-repeat;
+                /* background-size: cover; */
+                overflow: hidden}
+
+            #difficulty {
+                position: absolute;
+                top: 50%;
+                right: 50%;
+                background-color: rgba(255,255,255,0.5);
+            }
+            #select-difficulty {
+                top: 0;
+                right: 50%;
+                padding: 0.50em;
+                color: black;
+                position: absolute;
+                font-size: large;
+            }
+
+        </style>
+    </head>
+    <body>
+        <!-- Define the canvas to use for the WebGL example -->
+        <canvas id="webgl-canvas" width="400" height="400">
+            Your browser doesn't support the HTML5 canvas element.
+        </canvas>
+        <div id="select-difficulty">Choose a difficulty</div>
+        <a href="/index.html"><button id="start-game">Start Game</button></a>
+        <div id=controls>
+            <table>
+                <tr>
+                    <td><select id="difficulty">
+                        <option value="EASY">EASY</option>
+                        <option value="NORMAL">NORMAL</option>
+                        <option value="HARD">HARD</option>
+                    </select></td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>
