@@ -352,22 +352,22 @@ function isTop() {
 // Keeps track of last saved time to use for resetting fruit
 let lastSavedTime = 0.0;
 
+// user difficulty
+let difficulty = localStorage.getItem("userDifficulty")
+
 /**
  * Moves the object across the screen
  */
 function moveObject(ms, index) { // need a variable of spawn location, and speed depending on difficulty
     mat4.identity(modelViewMatrix)
-    let difficulty = document.getElementById('difficulty').value
+    // bigger the speed the slower the fruit goes
+    // easy default
     let speed = 2000;
     let resetTime = 7500;
-    if (difficulty === "EASY") {
-        // bigger the speed the slower the fruit goes
-        resetTime = 7500;
-        speed = 2000;
-    } else if (difficulty === "NORMAL") {
+    if (difficulty === "NORMAL") {
         resetTime = 3750;
         speed = 1000;
-    } else {
+    } else if (difficulty === "HARRD") {
         resetTime = 1875;
         speed = 500;
     }
