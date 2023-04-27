@@ -6,14 +6,23 @@
 let gl;
 
 const mat4 = glMatrix.mat4
+const vec2 = glMatrix.vec2
+const vec3 = glMatrix.vec3
+const vec4 = glMatrix.vec4
 
 let objs = []
 let modelViewMatrix = mat4.create()
+
+// array for keeping track of the positions of each object
+let objectPositions = []
 
 // array for random X positions for fruits
 let randomXPositions
 
 let willBeTop
+
+// whether an object was clicked. default to false
+let objectClicked = false
 
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
@@ -280,22 +289,50 @@ function loadModel(filename) {
  */
 function initEvents() {
     window.addEventListener('resize', onWindowResize)
-    // gl.canvas.addEventListener('click', onClick)
+    gl.canvas.addEventListener('click', onClick)
 }
 
-// function onClick() {
+/**
+ * 
+ * @param e : event
+ */
+function onClick(e) {    
+    e.preventDefault()
+    // Get mouse x and y in clip coordinates
+    let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
+    // 2 for [x, y]
+    for (let objPosition of objectPositions) {
+        if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) { // first withinRnge is for x, second for y
 
-// }
+            console.log('clicked object')
+            
+            objectClicked = true
+        }
+    }
+}
+
+
+/**
+ * check if clip coodinates are in the same range as object size offset (currently just gonna hardcode offset)
+ */
+function withinRange(clipCoords, objPosition, index) {
+    let offset = .2
+    // clipcoords has to be within range of object size
+    if (clipCoords[index] > objPosition[index] - offset && clipCoords[index] < objPosition[index] + offset) {
+        return true
+    }
+    return false
+}
 
 /**
  * Generates an array of random numbers -1 to 1 to be used for a fruits x position
  */
 function generateRandomsXPositions() {
-    let randomXPositions = []
+    let randXPositions = []
     for (let i = 0; i < objs.length; i++) {
-        randomXPositions.push((Math.random() * 2) - 1)
+        randXPositions.push((Math.random() * 2) - 1)
     }
-    return randomXPositions
+    return randXPositions
 }
 
 
@@ -346,14 +383,18 @@ function moveObject(ms, index) { // need a variable of spawn location, and speed
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, (ms - lastSavedTime) / speed, 0.0]); // translated position 
     }
 
-    // rotates the z axis of the fruit
+    // save positions of each objecs. same order as objs
+    let positions =  mat4.getTranslation(vec2.create(), modelViewMatrix);
+    objectPositions[index] = [positions[0], positions[1]]
+
     glMatrix.mat4.rotateZ(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 3000);
 
     // might have to round seconds to the nearest decimal point (or maybe don't convert ms to seconds)
-    if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
+    if (ms - lastSavedTime >= resetTime || objectClicked) { // resetTime is a ms value
         randomXPositions = generateRandomsXPositions();
         willBeTop = isTop();
         lastSavedTime = ms
+        objectClicked = false
     }
     // rotates the z axis of the fruit
     glMatrix.mat4.rotateZ(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 3000);
