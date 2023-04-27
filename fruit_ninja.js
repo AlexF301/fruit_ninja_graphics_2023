@@ -367,7 +367,7 @@ function moveObject(ms, index) { // need a variable of spawn location, and speed
     if (difficulty === "NORMAL") {
         resetTime = 3750;
         speed = 1000;
-    } else if (difficulty === "HARRD") {
+    } else if (difficulty === "HARD") {
         resetTime = 1875;
         speed = 500;
     }
