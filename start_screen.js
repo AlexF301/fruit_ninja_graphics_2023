@@ -10,4 +10,27 @@ window.addEventListener('load', function init() {
         let difficulty = document.getElementById('difficulty').value
         localStorage.setItem("userDifficulty", difficulty)
     })
+    initEvents();
+
+
 });
+
+/**
+ * Setup the user-interaction events.
+ */
+function initEvents() {
+    document.getElementById('music').addEventListener('change', playMusic);
+}
+
+/**
+ * Plays or pauses music depending on the music checkbox
+ */
+function playMusic() {
+    let audio = new Audio('fruit_acapella.mp3');
+    audio.volume = 0.1;
+    if (document.getElementById("music").checked) {
+        audio.play();
+    } else {
+        audio.pause();
+    }
+}
