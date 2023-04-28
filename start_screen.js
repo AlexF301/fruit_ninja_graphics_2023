@@ -20,9 +20,6 @@ window.addEventListener('load', function init() {
     // Initialize events
     initEvents();
 
-    // Play audio once page has loaded
-    audio.play();
-
 });
 
 /**
@@ -36,9 +33,9 @@ function initEvents() {
  * Plays or pauses music depending on the music checkbox
  */
 function pauseOrPlayMusic() {
-    if (!document.getElementById("music").checked) {
-        audio.pause();
-    } else {
+    if (document.getElementById("music").checked) {
         audio.play();
+    } else {
+        audio.pause();
     }
 }
