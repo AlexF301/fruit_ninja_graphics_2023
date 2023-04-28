@@ -7,10 +7,10 @@ let gl;
 
 const mat4 = glMatrix.mat4
 const vec2 = glMatrix.vec2
-const vec3 = glMatrix.vec3
-const vec4 = glMatrix.vec4
 
+// Array for objects that will be loaded into the game
 let objs = []
+
 let modelViewMatrix = mat4.create()
 
 // array for keeping track of the positions of each object
@@ -289,7 +289,40 @@ function loadModel(filename) {
  */
 function initEvents() {
     window.addEventListener('resize', onWindowResize)
-    gl.canvas.addEventListener('click', onClick)
+    // gl.canvas.addEventListener('click', onClick)
+    gl.canvas.addEventListener('mousedown', onMouseDown)
+}
+
+
+function onMouseDown(e) {
+    e.preventDefault()
+    gl.canvas.addEventListener('mousemove', onMouseMove)
+}
+
+function onMouseMove(e) {
+    e.preventDefault()
+    // Get mouse x and y in clip coordinates
+    let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
+
+    // 2 for [x, y]
+    for (let objPosition of objectPositions) {
+        if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) { // first withinRnge is for x, second for y
+
+            console.log('slashed object')
+            
+            objectClicked = true
+        }
+    }
+
+    gl.canvas.addEventListener('mouseup', onMouseUp)
+}
+
+
+function onMouseUp(e) {
+    e.preventDefault()
+
+    this.removeEventListener('mousemove', onMouseMove)
+    this.removeEventListener('mouseup', onMouseUp);
 }
 
 /**
