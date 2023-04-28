@@ -1,6 +1,12 @@
 // Welcome screen for Fruit Ninja
 // AUTHORS: Alexander Flores Sosa and Edwin Cojitambo
 
+// Game audio
+let audio = new Audio('fruit_acapella.mp3');
+
+// Lower the default game audio
+audio.volume = 0.1;
+
 /**
  * Once the user clicks the play button, the difficulty chosen is saved through local
  * storage, and used in the game file
@@ -10,8 +16,12 @@ window.addEventListener('load', function init() {
         let difficulty = document.getElementById('difficulty').value
         localStorage.setItem("userDifficulty", difficulty)
     })
+
+    // Initialize events
     initEvents();
 
+    // Play audio once page has loaded
+    audio.play();
 
 });
 
@@ -19,18 +29,16 @@ window.addEventListener('load', function init() {
  * Setup the user-interaction events.
  */
 function initEvents() {
-    document.getElementById('music').addEventListener('change', playMusic);
+    document.getElementById('music').addEventListener('change', pauseOrPlayMusic);
 }
 
 /**
  * Plays or pauses music depending on the music checkbox
  */
-function playMusic() {
-    let audio = new Audio('fruit_acapella.mp3');
-    audio.volume = 0.1;
-    if (document.getElementById("music").checked) {
-        audio.play();
-    } else {
+function pauseOrPlayMusic() {
+    if (!document.getElementById("music").checked) {
         audio.pause();
+    } else {
+        audio.play();
     }
 }
