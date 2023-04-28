@@ -19,10 +19,14 @@ let objectPositions = []
 // array for random X positions for fruits
 let randomXPositions
 
+// decides if fruit will spawn at the top or bottom
 let willBeTop
 
 // whether an object was clicked. default to false
 let objectClicked = false
+
+// number of lives for user
+// let lives;
 
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
@@ -67,6 +71,13 @@ window.addEventListener('load', function init() {
             render()
         }
     );
+    // set initial lives of user (TODO: Replace based on difficulty)
+    let lives = document.getElementById('lives')
+    lives.value = 3
+
+    // set initial score of user
+    let score = document.getElementById('score')
+    score.value = 0
 });
 
 function initModels() {
@@ -395,8 +406,11 @@ function moveObject(ms, index) { // need a variable of spawn location, and speed
     mat4.identity(modelViewMatrix)
     // bigger the speed the slower the fruit goes
     // easy default
+    let lives = document.getElementById('lives');
+    let score = document.getElementById('score');
     let speed = 2000;
     let resetTime = 7500;
+    // console.log(document.getElementById('lives'))
     if (difficulty === "NORMAL") {
         resetTime = 3750;
         speed = 1000;
@@ -422,18 +436,46 @@ function moveObject(ms, index) { // need a variable of spawn location, and speed
 
     glMatrix.mat4.rotateZ(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 3000);
 
+
     // might have to round seconds to the nearest decimal point (or maybe don't convert ms to seconds)
-    if (ms - lastSavedTime >= resetTime || objectClicked) { // resetTime is a ms value
+    if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
         randomXPositions = generateRandomsXPositions();
         willBeTop = isTop();
         lastSavedTime = ms
         objectClicked = false
+        lives.value -= 1;
+        lives.innerHTML = lives.value
     }
+
+    if (objectClicked) {
+        randomXPositions = generateRandomsXPositions();
+        willBeTop = isTop();
+        lastSavedTime = ms
+        objectClicked = false;
+        score.value += 1;
+        score.innerHTML = score.value
+    }
+
+    if (isGameOver()) {
+        // Send user back to welcome screen
+        window.location.href = "start_screen.html"
+        // TODO: save score to display at welcome screen // maybe local storage again
+        console.log("game over")
+    }
+
     // rotates the z axis of the fruit
     glMatrix.mat4.rotateZ(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 3000);
 
     // Updates in GPU
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, modelViewMatrix);
+}
+
+
+/**
+ * Checks if lives has reached 0
+ */
+function isGameOver() {
+    return document.getElementById('lives').value === 0
 }
 
 /**
