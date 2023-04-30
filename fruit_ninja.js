@@ -24,6 +24,11 @@ let objects = new Map()
 
 // user difficulty
 let difficulty = localStorage.getItem("userDifficulty")
+// Game audio
+let audio = new Audio('fruit_acapella.mp3');
+
+// Lower the default game audio
+audio.volume = 0.1;
 
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
@@ -305,6 +310,7 @@ function loadModel(filename) {
 function initEvents() {
     window.addEventListener('resize', onWindowResize)
     gl.canvas.addEventListener('mousedown', onMouseDown)
+    document.getElementById('music').addEventListener('change', pauseOrPlayMusic);
 }
 
 
@@ -336,6 +342,35 @@ function onMouseUp(e) {
     this.removeEventListener('mousemove', onMouseMove)
     this.removeEventListener('mouseup', onMouseUp);
 }
+
+/**
+ * 
+ * @param e : event
+ */
+function onClick(e) {    
+    e.preventDefault()
+    // Get mouse x and y in clip coordinates
+    let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
+    // 2 for [x, y]
+    for (let objPosition of objectPositions) {
+        if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) { // first withinRnge is for x, second for ys
+            console.log('clicked object')
+            objectClicked = true
+        }
+    }
+}
+
+/**
+ * Plays or pauses music depending on the music checkbox
+ */
+function pauseOrPlayMusic() {
+    if (document.getElementById("music").checked) {
+        audio.play();
+    } else {
+        audio.pause();
+    }
+}
+
 
 /**
  * check if clip coodinates are in the same range as object size offset (currently just gonna hardcode offset)
