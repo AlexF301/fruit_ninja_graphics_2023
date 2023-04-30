@@ -13,30 +13,55 @@
         <!-- Style the canvas -->
         <style type="text/css">
             body {
-                /* background-image: url("game_background.jpg"); */
+                background-image: url("game_background.jpg");
                 background-repeat: no-repeat;
                 /* background-size: cover; */
-                overflow: hidden}
+                overflow: hidden;
+                position: relative;
+            }
 
             #difficulty {
                 position: absolute;
-                top: 50%;
-                right: 50%;
-                background-color: rgba(255,255,255,0.5);
-            }
-            #select-difficulty {
-                top: 0;
-                right: 50%;
-                padding: 0.50em;
-                color: black;
-                position: absolute;
+                top: 60%;
+                right: 47.3%;
+                background-color: rgba(255,255,255,1.0);
                 font-size: large;
             }
+            #select-difficulty {
+                top: 50%;
+                right: 45%;
+                padding: 0.50em;
+                color: white;
+                position: absolute;
+                font-size: larger;
+            }
             #music {
-                top: 0;
+                top: 0.5%;
                 right: 0;
                 padding: 0.75em;
                 position: absolute;
+            }
+            #start-game {
+                font-size: large;
+                top: 70%;
+                right: 47%;
+                position: absolute;
+            }
+            #music-word {
+                font-size: larger;
+                top: 0%;
+                right: 1%;
+                margin-right: 0.5em;
+                position: absolute;
+                color: white;
+            }
+            #last-score {
+                font-size: larger;
+                top: 80%;
+                right: 49%;
+                margin-right: 0.5em;
+                position: absolute;
+                color: white;
             }
 
         </style>
@@ -49,6 +74,8 @@
         <div id="select-difficulty">Choose a Difficulty</div>
         <a href="index.html"><button id="start-game">Start Game</button></a>
         <input id="music" name="music" type="checkbox"></input>
+        <div id="music-word">Music</div>
+        <div id="last-score">Last score:</div>
         <div id=controls>
             <table>
                 <tr>
