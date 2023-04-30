@@ -19,7 +19,7 @@ let objectClicked = false
 // number of lives for user
 // let lives;
 
-// { "Obj1", { obj: [vao, ind.length, texture] position: [x, y], randXPos: "x" , spawnTime = "ms"} }
+// { "Obj1", { obj: [vao, ind.length, texture] position: [x, y], randXPos: "x" , spawnTime: "ms", resetObj: false} }
 let objects = new Map()
 
 // user difficulty
@@ -65,13 +65,13 @@ window.addEventListener('load', function init() {
             for (let i = 0; i < models.length; i++) {
                 let nestedMap = new Map();
                 nestedMap.set("obj", models[i]);
+                nestedMap.set("isClicked", false);
                 objects.set(`obj` + (i+1), nestedMap);
             }
             // generate random x positions for fruits between (-1.0 to 1.0)
             generateRandomsXPositions();
             // generate random spawn time for fruits
             generateRandomSpawnTime()
-            
 
             // generates on which side (top or bottom) to intially spawn a fruit
             willBeTop = isTop();
@@ -328,7 +328,6 @@ function onMouseMove(e) {
         let objPosition = objects.get(fruit).get("position");
         // first withinRnge is for x, second for y
         if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) {
-            console.log('slashed object')
             objectClicked = true
         }
     }
@@ -343,22 +342,6 @@ function onMouseUp(e) {
     this.removeEventListener('mouseup', onMouseUp);
 }
 
-/**
- * 
- * @param e : event
- */
-function onClick(e) {    
-    e.preventDefault()
-    // Get mouse x and y in clip coordinates
-    let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
-    // 2 for [x, y]
-    for (let objPosition of objectPositions) {
-        if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) { // first withinRnge is for x, second for ys
-            console.log('clicked object')
-            objectClicked = true
-        }
-    }
-}
 
 /**
  * Plays or pauses music depending on the music checkbox
@@ -401,18 +384,17 @@ function generateRandomSpawnTime() {
     } else if (difficulty === "HARD") {
         speedFactor = .5
     }
-
-    console.log(speedFactor)
     for (let fruit of objects.keys()) {
+        // if (objects.get(fruit).get('isClicked')) {
+            
+        // }
+
         let spawnTime = Math.random() * 3000; // generate a random spawn time
         let timeOffset = Math.random() * 2000; // generate a random time offset
         let speed = (spawnTime + timeOffset) * speedFactor
         let resetTime = speed * 3.75
         objects.get(fruit).set("speed", speed)
         objects.get(fruit).set("resetTime",  resetTime)
-
-        console.log('speed', speed)
-        console.log('resetTime', resetTime)
     }
 }
 
