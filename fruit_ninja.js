@@ -448,10 +448,9 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
     }
 
     if (isGameOver()) {
-        // Send user back to welcome screen
+        // Send user back to welcome screen and save their score
+        localStorage.setItem("score", score.value)
         window.location.href = "start_screen.html"
-        // TODO: save score to display at welcome screen // maybe local storage again
-        console.log("game over")
     }
 
     // rotates the z axis of the fruit
