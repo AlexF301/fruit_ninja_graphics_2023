@@ -22,6 +22,9 @@ let objectClicked = false
 // { "Obj1", { obj: [vao, ind.length, texture] position: [x, y], randXPos: "x" , spawnTime = "ms"} }
 let objects = new Map()
 
+// user difficulty
+let difficulty = localStorage.getItem("userDifficulty")
+
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
     // Get the HTML5 canvas object from it's ID
@@ -61,7 +64,9 @@ window.addEventListener('load', function init() {
             }
             // generate random x positions for fruits between (-1.0 to 1.0)
             generateRandomsXPositions();
+            // generate random spawn time for fruits
             generateRandomSpawnTime()
+            
 
             // generates on which side (top or bottom) to intially spawn a fruit
             willBeTop = isTop();
@@ -355,11 +360,36 @@ function generateRandomsXPositions() {
 }
 
 function generateRandomSpawnTime() {
-    for (let fruit of objects.keys()) {
-        objects.get(fruit).set("spawnTime", Math.random() * 10000) // generate a random value in ms
+    let speedFactor = 1
+    if (difficulty === "NORMAL") {
+        speedFactor = .8
+    } else if (difficulty === "HARD") {
+        speedFactor = .5
     }
 
-    console.log('objects', objects)
+    console.log(speedFactor)
+    for (let fruit of objects.keys()) {
+        let spawnTime = Math.random() * 3000; // generate a random spawn time
+        let timeOffset = Math.random() * 2000; // generate a random time offset
+        let speed = (spawnTime + timeOffset) * speedFactor
+        let resetTime = speed * 3.75
+        objects.get(fruit).set("speed", speed)
+        objects.get(fruit).set("resetTime",  resetTime)
+
+        console.log('speed', speed)
+        console.log('resetTime', resetTime)
+    }
+}
+
+function isOutOfBounds(fruit) {
+    let position = fruit.get('position')
+    if (typeof position === 'undefined') {
+        return false
+    }
+    if (position[1] > 1.1 || position[1] < -1.1) {
+        return true
+    } 
+    return false
 }
 
 /**
@@ -385,9 +415,6 @@ function updateObjectPosition(object, position) {
 // Keeps track of last saved time to use for resetting fruit
 let lastSavedTime = 0.0;
 
-// user difficulty
-let difficulty = localStorage.getItem("userDifficulty")
-
 /**
  * Moves the object across the screen
  */
@@ -397,16 +424,8 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
     // easy default
     let lives = document.getElementById('lives');
     let score = document.getElementById('score');
-    let speed = 2000;
-    let resetTime = 7500;
-    // console.log(document.getElementById('lives'))
-    if (difficulty === "NORMAL") {
-        resetTime = 3750;
-        speed = 1000;
-    } else if (difficulty === "HARD") {
-        resetTime = 1875;
-        speed = 500;
-    }
+    let speed = obj.get('speed')
+    let resetTime = obj.get('resetTime')
 
     let xPos = obj.get('randXPos')
 
@@ -423,11 +442,10 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
 
     // save positions of each objecs. same order as objs
     let positions =  mat4.getTranslation(vec2.create(), modelViewMatrix);
-    // objectPositions[index] = [positions[0], positions[1]]
     updateObjectPosition(obj, positions)
 
     // might have to round seconds to the nearest decimal point (or maybe don't convert ms to seconds)
-    if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
+    if (ms - lastSavedTime >= resetTime && isOutOfBounds(obj)) { // resetTime is a ms value
         generateRandomsXPositions()
         generateRandomSpawnTime()
         willBeTop = isTop();
@@ -498,15 +516,12 @@ function render(ms) {
     // The ms value is the number of miliseconds since some arbitrary time in the past
     // If it is not provided (i.e. render is directly called) then this if statement will grab the current time
 
-    if (!ms) { ms = performance.now() }
+    if (!ms) { ms = performance.now()}
     for (let key of objects.keys()) {
         let object = objects.get(key);
-
-        console.log(object.get('spawnTime'))
-
         let [vao, count, texture] = object.get("obj");
         gl.bindVertexArray(vao);
-        moveObject(object.get('spawnTime'), object)
+        moveObject(ms, object)
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);    
