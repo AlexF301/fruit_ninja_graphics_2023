@@ -29,7 +29,7 @@ let objectClicked = false
 // let lives;
 
 // Game audio
-let audio = new Audio('drake_ai.mp3');
+let audio = new Audio('posty.mp3');
 
 // Lower the default game audio
 audio.volume = 0.1;
