@@ -28,6 +28,12 @@ let objectClicked = false
 // number of lives for user
 // let lives;
 
+// Game audio
+let audio = new Audio('fruit_acapella.mp3');
+
+// Lower the default game audio
+audio.volume = 0.1;
+
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
     // Get the HTML5 canvas object from it's ID
@@ -302,6 +308,7 @@ function initEvents() {
     window.addEventListener('resize', onWindowResize)
     // gl.canvas.addEventListener('click', onClick)
     gl.canvas.addEventListener('mousedown', onMouseDown)
+    document.getElementById('music').addEventListener('change', pauseOrPlayMusic);
 }
 
 
@@ -352,6 +359,17 @@ function onClick(e) {
             
             objectClicked = true
         }
+    }
+}
+
+/**
+ * Plays or pauses music depending on the music checkbox
+ */
+function pauseOrPlayMusic() {
+    if (document.getElementById("music").checked) {
+        audio.play();
+    } else {
+        audio.pause();
     }
 }
 

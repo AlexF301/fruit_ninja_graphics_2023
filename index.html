@@ -31,21 +31,45 @@
             }
             #score {
                 position: absolute;
-                font-size: large;
-                top: 10px;
+                top: 0.5%;
                 left: 50%;
                 color: white;
                 transform: translateX(-50%);
-                font-size: 48px;
+                font-size: 36px;
             }
             #lives {
                 position: absolute;
                 font-size: large;
-                top: 10px;
+                top: 0.5%;
                 right: 0;
                 color: white;
-                font-size: 48px;
+                font-size: 36px;
                 padding-right: 0.2em;
+            }
+            #lives-word {
+                position: absolute;
+                font-size: large;
+                top: 0.5%;
+                right: 2%;
+                color: white;
+                font-size: 36px;
+                padding-right: 0.2em;
+            }
+            #music {
+                top: 2%;
+                left: 1%;
+                padding: 0.75em;
+                position: absolute;
+                transform: scale(2);
+            }
+            #music-word {
+                font-size: larger;
+                top: 0.5%;
+                left: 2%;
+                margin-left: 0.5em;
+                font-size: 36px;
+                position: absolute;
+                color: white;
             }
         </style>
     </head>
@@ -56,5 +80,8 @@
         </canvas>
         <div id="score">0</div>
         <div id="lives">3</div>
+        <div id="lives-word">Lives:</div>
+        <input id="music" name="music" type="checkbox"></input>
+        <div id="music-word">Music</div>
     </body>
 </html>
