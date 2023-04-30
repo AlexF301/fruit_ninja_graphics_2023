@@ -8,16 +8,7 @@ let gl;
 const mat4 = glMatrix.mat4
 const vec2 = glMatrix.vec2
 
-// Array for objects that will be loaded into the game
-let objs = []
-
 let modelViewMatrix = mat4.create()
-
-// array for keeping track of the positions of each object
-let objectPositions = []
-
-// array for random X positions for fruits
-let randomXPositions
 
 // decides if fruit will spawn at the top or bottom
 let willBeTop
@@ -27,6 +18,9 @@ let objectClicked = false
 
 // number of lives for user
 // let lives;
+
+// { "Obj1", { obj: [vao, ind.length, texture] position: [x, y], randXPos: "x" , spawnTime = "ms"} }
+let objects = new Map()
 
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
@@ -60,9 +54,14 @@ window.addEventListener('load', function init() {
             // Now we can add user interaction events and render the scene
             // The provided models is an array of all of the loaded models
             // Each model is a VAO and a number of indices to draw
-            objs.push(...models);
-            // generate random x position for fruit (-1.0 to 1.0)
-            randomXPositions = generateRandomsXPositions();
+            for (let i = 0; i < models.length; i++) {
+                let nestedMap = new Map();
+                nestedMap.set("obj", models[i]);
+                objects.set(`obj` + (i+1), nestedMap);
+            }
+            // generate random x positions for fruits between (-1.0 to 1.0)
+            generateRandomsXPositions();
+            generateRandomSpawnTime()
 
             // generates on which side (top or bottom) to intially spawn a fruit
             willBeTop = isTop();
@@ -300,7 +299,6 @@ function loadModel(filename) {
  */
 function initEvents() {
     window.addEventListener('resize', onWindowResize)
-    // gl.canvas.addEventListener('click', onClick)
     gl.canvas.addEventListener('mousedown', onMouseDown)
 }
 
@@ -315,16 +313,14 @@ function onMouseMove(e) {
     // Get mouse x and y in clip coordinates
     let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
 
-    // 2 for [x, y]
-    for (let objPosition of objectPositions) {
-        if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) { // first withinRnge is for x, second for y
-
+    for (let fruit of objects.keys()) {
+        let objPosition = objects.get(fruit).get("position");
+        // first withinRnge is for x, second for y
+        if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) {
             console.log('slashed object')
-            
             objectClicked = true
         }
     }
-
     gl.canvas.addEventListener('mouseup', onMouseUp)
 }
 
@@ -337,26 +333,6 @@ function onMouseUp(e) {
 }
 
 /**
- * 
- * @param e : event
- */
-function onClick(e) {    
-    e.preventDefault()
-    // Get mouse x and y in clip coordinates
-    let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
-    // 2 for [x, y]
-    for (let objPosition of objectPositions) {
-        if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) { // first withinRnge is for x, second for y
-
-            console.log('clicked object')
-            
-            objectClicked = true
-        }
-    }
-}
-
-
-/**
  * check if clip coodinates are in the same range as object size offset (currently just gonna hardcode offset)
  */
 function withinRange(clipCoords, objPosition, index) {
@@ -367,18 +343,24 @@ function withinRange(clipCoords, objPosition, index) {
     }
     return false
 }
-
+  
 /**
  * Generates an array of random numbers -1 to 1 to be used for a fruits x position
  */
 function generateRandomsXPositions() {
-    let randXPositions = []
-    for (let i = 0; i < objs.length; i++) {
-        randXPositions.push((Math.random() * 2) - 1)
+    for (let fruit of objects.keys()) {
+        let nestedMap = objects.get(fruit);
+        nestedMap.set("randXPos", Math.random() * 2 - 1); // set the "randXPos" key for the nested map
     }
-    return randXPositions
 }
 
+function generateRandomSpawnTime() {
+    for (let fruit of objects.keys()) {
+        objects.get(fruit).set("spawnTime", Math.random() * 10000) // generate a random value in ms
+    }
+
+    console.log('objects', objects)
+}
 
 /**
  * Generates a random number and uses it to decide if a fruit should spawn on top
@@ -392,6 +374,13 @@ function isTop() {
     return false
 }
 
+/**
+ * Updates the x and y positions of an object
+ */
+function updateObjectPosition(object, position) {
+    object.set('position', position)
+}
+
 
 // Keeps track of last saved time to use for resetting fruit
 let lastSavedTime = 0.0;
@@ -402,7 +391,7 @@ let difficulty = localStorage.getItem("userDifficulty")
 /**
  * Moves the object across the screen
  */
-function moveObject(ms, index) { // need a variable of spawn location, and speed depending on difficulty
+function moveObject(ms, obj) { // need a variable of spawn location, and speed depending on difficulty
     mat4.identity(modelViewMatrix)
     // bigger the speed the slower the fruit goes
     // easy default
@@ -419,27 +408,28 @@ function moveObject(ms, index) { // need a variable of spawn location, and speed
         speed = 500;
     }
 
+    let xPos = obj.get('randXPos')
+
     // Initial x and y position of fruit
     if (willBeTop) {
-        glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [randomXPositions[index], 1.25, 0.0]); // initial position of fruit
+        glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [xPos, 1.25, 0.0]); // initial position of fruit
         glMatrix.mat4.rotateY(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 1000); // rotates the y axis of the fruit
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, -((ms - lastSavedTime) / speed), 0.0]); // translated position 
     } else {
-        glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [randomXPositions[index], -1.25, 0.0]); // initial position of fruit
+        glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [xPos, -1.25, 0.0]); // initial position of fruit
         glMatrix.mat4.rotateY(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 1000); // rotates the y axis of the fruit
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, (ms - lastSavedTime) / speed, 0.0]); // translated position 
     }
 
     // save positions of each objecs. same order as objs
     let positions =  mat4.getTranslation(vec2.create(), modelViewMatrix);
-    objectPositions[index] = [positions[0], positions[1]]
-
-    glMatrix.mat4.rotateZ(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 3000);
-
+    // objectPositions[index] = [positions[0], positions[1]]
+    updateObjectPosition(obj, positions)
 
     // might have to round seconds to the nearest decimal point (or maybe don't convert ms to seconds)
     if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
-        randomXPositions = generateRandomsXPositions();
+        generateRandomsXPositions()
+        generateRandomSpawnTime()
         willBeTop = isTop();
         lastSavedTime = ms
         objectClicked = false
@@ -448,7 +438,8 @@ function moveObject(ms, index) { // need a variable of spawn location, and speed
     }
 
     if (objectClicked) {
-        randomXPositions = generateRandomsXPositions();
+        generateRandomsXPositions()
+        generateRandomSpawnTime()
         willBeTop = isTop();
         lastSavedTime = ms
         objectClicked = false;
@@ -507,18 +498,20 @@ function render(ms) {
 
     // The ms value is the number of miliseconds since some arbitrary time in the past
     // If it is not provided (i.e. render is directly called) then this if statement will grab the current time
-    if (!ms) { ms = performance.now(); }
 
-    for (let index = 0; index < objs.length; index++) {
-        let [vao, count, texture] = objs[index]
+    if (!ms) { ms = performance.now() }
+    for (let key of objects.keys()) {
+        let object = objects.get(key);
+
+        console.log(object.get('spawnTime'))
+
+        let [vao, count, texture] = object.get("obj");
         gl.bindVertexArray(vao);
-        moveObject(ms, index)
-
+        moveObject(object.get('spawnTime'), object)
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);    
     }
-
     // cleanup
     gl.bindVertexArray(null)
     window.requestAnimationFrame(render);
