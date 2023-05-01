@@ -73,6 +73,22 @@ window.addEventListener('load', function init() {
                 generateRandomsXPositions(objects.get(fruit_obj));
                 // generate random spawn time for fruits
                 generateRandomSpawnTime(objects.get(fruit_obj))
+                let fruitName;
+                let counter = 0;
+                // console.log(objects.keys())
+                for (let fruit of objects.keys()) {
+                    counter += 1
+                    if (counter === 1) {
+                        fruitName = "banana"
+                    } else if (counter === 2) {
+                        fruitName = "apple"
+                    } else if (counter === 3) {
+                        fruitName = "watermelon"
+                    } else if (counter === 4) {
+                        fruitName = "bomb"
+                    }
+                    objects.get(fruit).set("fruitName", fruitName)
+                }                
             }
             
             onWindowResize();
@@ -337,12 +353,17 @@ function onMouseMove(e) {
     // Get mouse x and y in clip coordinates
     let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
 
+
     for (let fruit of objects.keys()) {
         let objPosition = objects.get(fruit).get("position");
+        objects.get(fruit).set("fruit", fruit)
         // first withinRnge is for x, second for y
         if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) {
             // lose a life if bomb is sliced
-            if (fruit === "obj4") {
+            let name = objects.get(fruit).get("fruitName")
+            if (name === "bomb") {
+                // since bomb is being sliced multiple times because of lag
+                // inplement a check to make sure that you cannot slice until it fully resets
                 let lives = document.getElementById('lives');
                 lives.value -= 1;
                 lives.innerHTML = lives.value
@@ -464,11 +485,16 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
         generateRandomSpawnTime(obj)
         obj.set('willBeTop', isTop());
         obj.set('lastSavedTime', ms);
-        lives.value -= 1;
-        lives.innerHTML = lives.value
+        if (obj.get("fruitName") !== "bomb") {
+            lives.value -= 1;
+            lives.innerHTML = lives.value
+        }
+        console.log("fruit reset: ", obj.get("fruitName"))
     }
 
-    // I think each fruit needs their own clicked attribute
+
+
+    // Increase score, and reset fruit that was clicked values
     if (obj.get('clicked')) {
         obj.set('clicked', false);
         obj.set('lastSavedTime', ms);
