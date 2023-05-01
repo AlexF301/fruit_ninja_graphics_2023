@@ -27,6 +27,8 @@ audio.volume = 0.1;
 // Default of 1
 let speedFactor = 2
 
+let bombReset = false;
+
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
     // Get the HTML5 canvas object from it's ID
@@ -60,6 +62,7 @@ window.addEventListener('load', function init() {
             // Now we can add user interaction events and render the scene
             // The provided models is an array of all of the loaded models
             // Each model is a VAO and a number of indices to draw
+            
             for (let i = 0; i < models.length; i++) {
                 let nestedMap = new Map();
                 nestedMap.set("obj", models[i]);
@@ -72,23 +75,24 @@ window.addEventListener('load', function init() {
                 // generate random x positions for fruits between (-1.0 to 1.0)
                 generateRandomsXPositions(objects.get(fruit_obj));
                 // generate random spawn time for fruits
-                generateRandomSpawnTime(objects.get(fruit_obj))
-                let fruitName;
-                let counter = 0;
-                // console.log(objects.keys())
-                for (let fruit of objects.keys()) {
-                    counter += 1
-                    if (counter === 1) {
-                        fruitName = "banana"
-                    } else if (counter === 2) {
-                        fruitName = "apple"
-                    } else if (counter === 3) {
-                        fruitName = "watermelon"
-                    } else if (counter === 4) {
-                        fruitName = "bomb"
-                    }
-                    objects.get(fruit).set("fruitName", fruitName)
-                }                
+                generateRandomSpawnTime(objects.get(fruit_obj)) 
+            
+            }
+            // set fruitName of each object
+            let fruitName;
+            let counter = 0;
+            for (let fruit of objects.keys()) {
+                counter += 1
+                if (counter === 1) {
+                    fruitName = "banana"
+                } else if (counter === 2) {
+                    fruitName = "apple"
+                } else if (counter === 3) {
+                    fruitName = "watermelon"
+                } else if (counter === 4) {
+                    fruitName = "bomb"
+                }
+                objects.get(fruit).set("fruitName", fruitName)
             }
             
             onWindowResize();
@@ -348,11 +352,15 @@ function onMouseDown(e) {
     gl.canvas.addEventListener('mousemove', onMouseMove)
 }
 
+// used to not slice bomb multiple times within milliseconds
+let lastClickTime = 0;
+
 function onMouseMove(e) {
     e.preventDefault()
     // Get mouse x and y in clip coordinates
     let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
-
+    // current time of click (ms)
+    let currentTime = performance.now()
 
     for (let fruit of objects.keys()) {
         let objPosition = objects.get(fruit).get("position");
@@ -362,11 +370,14 @@ function onMouseMove(e) {
             // lose a life if bomb is sliced
             let name = objects.get(fruit).get("fruitName")
             if (name === "bomb") {
-                // since bomb is being sliced multiple times because of lag
-                // inplement a check to make sure that you cannot slice until it fully resets
-                let lives = document.getElementById('lives');
-                lives.value -= 1;
-                lives.innerHTML = lives.value
+                // stops issue of bomb lag
+                if (currentTime - lastClickTime >= 500) {
+                    let lives = document.getElementById('lives');
+                    lives.value -= 1;
+                    lives.innerHTML = lives.value
+                    lastClickTime = Math.round(currentTime)
+                }
+
             }
             objects.get(fruit).set("clicked", true)
             generateRandomsXPositions(objects.get(fruit))
