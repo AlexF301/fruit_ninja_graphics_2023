@@ -11,7 +11,7 @@ const vec2 = glMatrix.vec2
 let modelViewMatrix = mat4.create()
 
 // whether an object was clicked. default to false
-let objectClicked = false
+// let objectClicked = false
 
 // { "Obj1", { obj: [vao, ind.length, texture] position: [x, y], randXPos: "x" , spawnTime: "ms"} }
 let objects = new Map()
@@ -81,7 +81,7 @@ window.addEventListener('load', function init() {
     );
     // set initial lives of user (TODO: Replace based on difficulty)
     let lives = document.getElementById('lives')
-    lives.value = 3
+    lives.value = 30
 
     // set initial score of user
     let score = document.getElementById('score')
@@ -102,6 +102,8 @@ function initModels() {
     let watermelon = loadModelWithTexture('fruits/watermelon-fresh/Watermelon.json', 'fruits/watermelon-fresh/textures/food_0001_color_2k.jpeg', 2)
     let bomb = loadModelWithTexture('bomb/Bomb.json', 'bomb/textures/bomb_basecol.png', 3)
     return [banana, apple, watermelon, bomb];
+    // return [banana, apple];
+
 }
 
 function loadModelWithTexture(model, img_path, index) {
@@ -337,7 +339,9 @@ function onMouseMove(e) {
         let objPosition = objects.get(fruit).get("position");
         // first withinRnge is for x, second for y
         if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) {
-            objectClicked = true
+            // objectClicked = true
+            // console.log("get ", objects.get(fruit))
+            objects.get(fruit).set("clicked", true)
             generateRandomsXPositions(objects.get(fruit))
             generateRandomSpawnTime(objects.get(fruit))
             objects.get(fruit).set("willBeTop", isTop())
@@ -387,6 +391,8 @@ function generateRandomsXPositions(fruit) {
     fruit.set("randXPos", Math.random() * 2 - 1); // set the "randXPos" key for the nested map
 }
 
+// let pls = 0
+
 function generateRandomSpawnTime(fruit) {
     let spawnTime = Math.random() * 3000; // generate a random spawn time
     let timeOffset = Math.random() * 2000; // generate a random time offset
@@ -395,8 +401,11 @@ function generateRandomSpawnTime(fruit) {
     fruit.set("speed", speed)  
     fruit.set("resetTime",  resetTime)
 
-    console.log('banana', objects.get('obj1'))
-    console.log('apple', objects.get('obj2'))
+    // pls += 1;
+
+    // console.log('banana', objects.get('obj1'))
+    // console.log('apple', objects.get('obj2'))
+    // console.log("pls: ", pls)
 }
 
 /**
@@ -459,8 +468,10 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
         lives.innerHTML = lives.value
     }
 
-    if (objectClicked) {
-        objectClicked = false
+    // I think each fruit needs their own clicked attribute
+    if (obj.get('clicked')) {
+        // console.log("got into here")
+        obj.set('clicked', false);
         obj.set('lastSavedTime', ms);
         score.value += 1;
         score.innerHTML = score.value
