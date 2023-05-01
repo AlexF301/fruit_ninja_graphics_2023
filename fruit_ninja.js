@@ -10,16 +10,10 @@ const vec2 = glMatrix.vec2
 
 let modelViewMatrix = mat4.create()
 
-// decides if fruit will spawn at the top or bottom
-let willBeTop
-
 // whether an object was clicked. default to false
 let objectClicked = false
 
-// number of lives for user
-// let lives;
-
-// { "Obj1", { obj: [vao, ind.length, texture] position: [x, y], randXPos: "x" , spawnTime: "ms", resetObj: false} }
+// { "Obj1", { obj: [vao, ind.length, texture] position: [x, y], randXPos: "x" , spawnTime: "ms"} }
 let objects = new Map()
 
 // user difficulty
@@ -29,6 +23,9 @@ let audio = new Audio('drake_ai.mp3');
 
 // Lower the default game audio
 audio.volume = 0.1;
+
+// Default of 1
+let speedFactor = 2
 
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
@@ -50,6 +47,7 @@ window.addEventListener('load', function init() {
     gl.program = initProgram();
     initEvents();
     let fruit_models = initModels();
+    setDifficulty()
 
     // Set initial values of uniforms
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mat4.create());
@@ -65,16 +63,16 @@ window.addEventListener('load', function init() {
             for (let i = 0; i < models.length; i++) {
                 let nestedMap = new Map();
                 nestedMap.set("obj", models[i]);
-                nestedMap.set("isClicked", false);
-                objects.set(`obj` + (i+1), nestedMap);
+                nestedMap.set("willBeTop", isTop());
+                
+                let fruit_obj = `obj` + (i+1)
+                objects.set(fruit_obj, nestedMap);
+
+                // generate random spawn time for fruits
+                generateRandomSpawnTime(objects.get(fruit_obj))
             }
             // generate random x positions for fruits between (-1.0 to 1.0)
             generateRandomsXPositions();
-            // generate random spawn time for fruits
-            generateRandomSpawnTime()
-
-            // generates on which side (top or bottom) to intially spawn a fruit
-            willBeTop = isTop();
             
             onWindowResize();
             render()
@@ -88,6 +86,14 @@ window.addEventListener('load', function init() {
     let score = document.getElementById('score')
     score.value = 0
 });
+
+function setDifficulty() {
+    if (difficulty === "NORMAL") {
+        speedFactor = .8
+    } else if (difficulty === "HARD") {
+        speedFactor = .5
+    }
+}
 
 function initModels() {
     let banana = loadModelWithTexture('fruits/banana/scaled_banana/banana_scaled.json', 'fruits/banana/original_banana/textures/Banana_skin_texture.jpg', 0)
@@ -329,6 +335,9 @@ function onMouseMove(e) {
         // first withinRnge is for x, second for y
         if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) {
             objectClicked = true
+            generateRandomsXPositions()
+            generateRandomSpawnTime( objects.get(fruit))
+            objects.get(fruit).set("willBeTop", isTop())
         }
     }
     gl.canvas.addEventListener('mouseup', onMouseUp)
@@ -377,36 +386,16 @@ function generateRandomsXPositions() {
     }
 }
 
-function generateRandomSpawnTime() {
-    let speedFactor = 1
-    if (difficulty === "NORMAL") {
-        speedFactor = .8
-    } else if (difficulty === "HARD") {
-        speedFactor = .5
-    }
-    for (let fruit of objects.keys()) {
-        // if (objects.get(fruit).get('isClicked')) {
-            
-        // }
+function generateRandomSpawnTime(fruit) {
+    let spawnTime = Math.random() * 3000; // generate a random spawn time
+    let timeOffset = Math.random() * 2000; // generate a random time offset
+    let speed = (spawnTime + timeOffset) * speedFactor
+    let resetTime = speed * 3.75
+    fruit.set("speed", speed)  
+    fruit.set("resetTime",  resetTime)
 
-        let spawnTime = Math.random() * 3000; // generate a random spawn time
-        let timeOffset = Math.random() * 2000; // generate a random time offset
-        let speed = (spawnTime + timeOffset) * speedFactor
-        let resetTime = speed * 3.75
-        objects.get(fruit).set("speed", speed)
-        objects.get(fruit).set("resetTime",  resetTime)
-    }
-}
-
-function isOutOfBounds(fruit) {
-    let position = fruit.get('position')
-    if (typeof position === 'undefined') {
-        return false
-    }
-    if (position[1] > 1.1 || position[1] < -1.1) {
-        return true
-    } 
-    return false
+    console.log('banana', objects.get('obj1'))
+    console.log('apple', objects.get('obj2'))
 }
 
 /**
@@ -428,7 +417,6 @@ function updateObjectPosition(object, position) {
     object.set('position', position)
 }
 
-
 // Keeps track of last saved time to use for resetting fruit
 let lastSavedTime = 0.0;
 
@@ -443,11 +431,10 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
     let score = document.getElementById('score');
     let speed = obj.get('speed')
     let resetTime = obj.get('resetTime')
-
     let xPos = obj.get('randXPos')
 
     // Initial x and y position of fruit
-    if (willBeTop) {
+    if (obj.get('willBeTop')) {
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [xPos, 1.25, 0.0]); // initial position of fruit
         glMatrix.mat4.rotateY(modelViewMatrix, modelViewMatrix, (ms - lastSavedTime) / 1000); // rotates the y axis of the fruit
         glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, -((ms - lastSavedTime) / speed), 0.0]); // translated position 
@@ -462,22 +449,18 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
     updateObjectPosition(obj, positions)
 
     // might have to round seconds to the nearest decimal point (or maybe don't convert ms to seconds)
-    if (ms - lastSavedTime >= resetTime && isOutOfBounds(obj)) { // resetTime is a ms value
+    if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
         generateRandomsXPositions()
-        generateRandomSpawnTime()
-        willBeTop = isTop();
+        generateRandomSpawnTime(obj)
+        obj.set('willBeTop', isTop());
         lastSavedTime = ms
-        objectClicked = false
         lives.value -= 1;
         lives.innerHTML = lives.value
     }
 
     if (objectClicked) {
-        generateRandomsXPositions()
-        generateRandomSpawnTime()
-        willBeTop = isTop();
+        objectClicked = false
         lastSavedTime = ms
-        objectClicked = false;
         score.value += 1;
         score.innerHTML = score.value
     }
@@ -534,8 +517,8 @@ function render(ms) {
     // If it is not provided (i.e. render is directly called) then this if statement will grab the current time
 
     if (!ms) { ms = performance.now()}
-    for (let key of objects.keys()) {
-        let object = objects.get(key);
+    for (let fruitKey of objects.keys()) {
+        let object = objects.get(fruitKey);
         let [vao, count, texture] = object.get("obj");
         gl.bindVertexArray(vao);
         moveObject(ms, object)
