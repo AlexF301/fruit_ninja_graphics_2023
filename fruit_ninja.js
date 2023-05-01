@@ -341,10 +341,12 @@ function onMouseMove(e) {
         let objPosition = objects.get(fruit).get("position");
         // first withinRnge is for x, second for y
         if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) {
-            // TODO: if fruit is obj4 (rename fruit var)
-            console.log(fruit)
-            // objectClicked = true
-            // console.log("get ", objects.get(fruit))
+            // lose a life if bomb is sliced
+            if (fruit === "obj4") {
+                let lives = document.getElementById('lives');
+                lives.value -= 1;
+                lives.innerHTML = lives.value
+            }
             objects.get(fruit).set("clicked", true)
             generateRandomsXPositions(objects.get(fruit))
             generateRandomSpawnTime(objects.get(fruit))
@@ -404,12 +406,6 @@ function generateRandomSpawnTime(fruit) {
     let resetTime = speed * 3.75
     fruit.set("speed", speed)  
     fruit.set("resetTime",  resetTime)
-
-    // pls += 1;
-
-    // console.log('banana', objects.get('obj1'))
-    // console.log('apple', objects.get('obj2'))
-    // console.log("pls: ", pls)
 }
 
 /**
@@ -474,7 +470,6 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
 
     // I think each fruit needs their own clicked attribute
     if (obj.get('clicked')) {
-        // console.log("got into here")
         obj.set('clicked', false);
         obj.set('lastSavedTime', ms);
         score.value += 1;
