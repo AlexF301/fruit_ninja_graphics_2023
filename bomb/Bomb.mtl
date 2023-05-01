@@ -1,0 +1,24 @@
+# Blender 3.5.0 MTL File: 'None'
+# www.blender.org
+
+newmtl Fuze.001
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Albedo.png
+map_Ks Metal.png
+map_Ns Rough.png
+map_Bump -bm 0.050000 Normal.png
+
+newmtl Metal.001
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Albedo.png
+map_Ks Metal.png
+map_Ns Rough.png
+map_Bump -bm 0.050000 Normal.png

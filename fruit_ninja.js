@@ -98,7 +98,9 @@ function setDifficulty() {
 function initModels() {
     let banana = loadModelWithTexture('fruits/banana/scaled_banana/banana_scaled.json', 'fruits/banana/original_banana/textures/Banana_skin_texture.jpg', 0)
     let apple = loadModelWithTexture('fruits/apple/apple.json', 'fruits/apple/apple-photogrammetry/textures/Apple_albedo.jpeg', 1)
-    return [banana, apple];
+    let watermelon = loadModelWithTexture('fruits/watermelon-fresh/Watermelon.json', 'fruits/watermelon-fresh/textures/food_0001_color_2k.jpeg', 2)
+    let bomb = loadModelWithTexture('bomb/Bomb.json', 'bomb/Albedo.png', 3)
+    return [banana, apple, watermelon, bomb];
 }
 
 function loadModelWithTexture(model, img_path, index) {
