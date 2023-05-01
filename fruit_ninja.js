@@ -410,8 +410,7 @@ function onMouseMove(e) {
 
         if (withinRange(clipCoords, objPosition, objSize)) {
             // lose a life if bomb is sliced
-            let name = objects.get(fruit).get("fruitName")
-            if (name === "bomb") {
+            if (objects.get(fruit).get("fruitName") === "bomb") {
                 // stops issue of bomb lag
                 if (currentTime - lastClickTime >= 500) {
                     let lives = document.getElementById('lives');
