@@ -99,7 +99,7 @@ function initModels() {
     let banana = loadModelWithTexture('fruits/banana/scaled_banana/banana_scaled.json', 'fruits/banana/original_banana/textures/Banana_skin_texture.jpg', 0)
     let apple = loadModelWithTexture('fruits/apple/apple.json', 'fruits/apple/apple-photogrammetry/textures/Apple_albedo.jpeg', 1)
     let watermelon = loadModelWithTexture('fruits/watermelon-fresh/Watermelon.json', 'fruits/watermelon-fresh/textures/food_0001_color_2k.jpeg', 2)
-    let bomb = loadModelWithTexture('bomb/Bomb.json', 'bomb/Albedo.png', 3)
+    let bomb = loadModelWithTexture('bomb/Bomb.json', 'bomb/textures/bomb_basecol.png', 3)
     return [banana, apple, watermelon, bomb];
 }
 
