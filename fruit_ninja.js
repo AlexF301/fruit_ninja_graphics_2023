@@ -395,6 +395,7 @@ function generateRandomSpawnTime(fruit) {
     let resetTime = speed * 3.75
     fruit.set("speed", speed)  
     fruit.set("resetTime",  resetTime)
+    fruit.set("lastSavedTime",  0.0)
 
     console.log('banana', objects.get('obj1'))
     console.log('apple', objects.get('obj2'))
@@ -419,8 +420,6 @@ function updateObjectPosition(object, position) {
     object.set('position', position)
 }
 
-// Keeps track of last saved time to use for resetting fruit
-let lastSavedTime = 0.0;
 
 /**
  * Moves the object across the screen
@@ -433,6 +432,8 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
     let score = document.getElementById('score');
     let speed = obj.get('speed')
     let resetTime = obj.get('resetTime')
+    // Keeps track of last saved time to use for resetting fruit
+    let lastSavedTime = obj.get('lastSavedTime')
     let xPos = obj.get('randXPos')
 
     // Initial x and y position of fruit
@@ -455,14 +456,14 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
         generateRandomsXPositions()
         generateRandomSpawnTime(obj)
         obj.set('willBeTop', isTop());
-        lastSavedTime = ms
+        obj.set('lastSavedTime', ms);
         lives.value -= 1;
         lives.innerHTML = lives.value
     }
 
     if (objectClicked) {
         objectClicked = false
-        lastSavedTime = ms
+        obj.set('lastSavedTime', ms);
         score.value += 1;
         score.innerHTML = score.value
     }
