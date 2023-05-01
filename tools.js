@@ -24,23 +24,23 @@ function createVao(gl, attributes, indices) {
     gl.bindVertexArray(vao);
 
     // Load the data into the GPU and associate with shader
-	for (let [attribute, data, count] of attributes) {
-		if (data.constructor !== Float64Array) {
-			data = Float64Array.from(data);
-		}
-		buf = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-		gl.vertexAttribPointer(attribute, count, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(attribute);
-	}
+    for (let [attribute, data, count] of attributes) {
+        if (data.constructor !== Float64Array) {
+            data = Float64Array.from(data);
+        }
+        buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(attribute, count, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(attribute);
+    }
 
     // Load the index data into the GPU
     buf = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buf);
-	if (indices.constructor !== Uint16Array) {
-		indices = Uint16Array.from(indices);
-	}
+    if (indices.constructor !== Uint16Array) {
+        indices = Uint16Array.from(indices);
+    }
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
     // Cleanup
@@ -58,23 +58,23 @@ function createVao(gl, attributes, indices) {
  * values. The image will be flipped vertically and will support mipmapping.
  */
 function loadTexture(gl, img, idx) {
-	if (typeof idx === "undefined") { idx = 0; }
+    if (typeof idx === "undefined") { idx = 0; }
 
-	let texture = gl.createTexture(); // create a texture resource on the GPU
-	gl.activeTexture(gl['TEXTURE'+idx]); // set the current texture that all following commands will apply to
-	gl.bindTexture(gl.TEXTURE_2D, texture); // assign our texture resource as the current texture
+    let texture = gl.createTexture(); // create a texture resource on the GPU
+    gl.activeTexture(gl['TEXTURE'+idx]); // set the current texture that all following commands will apply to
+    gl.bindTexture(gl.TEXTURE_2D, texture); // assign our texture resource as the current texture
 
-	// Load the image data into the texture
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    // Load the image data into the texture
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
 
-	// Setup options for downsampling and upsampling the image data
-	gl.generateMipmap(gl.TEXTURE_2D);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    // Setup options for downsampling and upsampling the image data
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-	// Cleanup and return
-	gl.bindTexture(gl.TEXTURE_2D, null);
-	return texture;
+    // Cleanup and return
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return texture;
 }
 
 
@@ -83,29 +83,29 @@ function loadTexture(gl, img, idx) {
  * using RGBA with uint8 values.
  */
 function loadCubemapTexture(gl, xp, xn, yp, yn, zp, zn, idx) {
-	if (typeof idx === "undefined") { idx = 0; }
+    if (typeof idx === "undefined") { idx = 0; }
 
-	let texture = gl.createTexture(); // create a texture resource on the GPU
-	gl.activeTexture(gl['TEXTURE'+idx]); // set the current texture that all following commands will apply to
-	gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture); // assign our texture resource as the current texture
+    let texture = gl.createTexture(); // create a texture resource on the GPU
+    gl.activeTexture(gl['TEXTURE'+idx]); // set the current texture that all following commands will apply to
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture); // assign our texture resource as the current texture
 
-	// Load the image data into the texture
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, xp);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, xn);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, yp);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, yn);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, zp);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, zn);
+    // Load the image data into the texture
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, xp);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, xn);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, yp);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, yn);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, zp);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, zn);
 
-	// Setup options for downsampling and upsampling the image data
-	gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    // Setup options for downsampling and upsampling the image data
+    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	
-	// Cleanup and return
-	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-	return texture;
+    // Cleanup and return
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    return texture;
 }
 
 
@@ -121,7 +121,7 @@ function loadCubemapTexture(gl, xp, xn, yp, yn, zp, zn, idx) {
  *    Float32Array of the normals with 3 values per vertex
  */
 function calc_normals(coords, indices, is_tri_strip) {
-	const vec3 = glMatrix.vec3;
+    const vec3 = glMatrix.vec3;
 
     if (is_tri_strip !== true && is_tri_strip !== false) { is_tri_strip = true; }
     
