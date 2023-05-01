@@ -64,15 +64,16 @@ window.addEventListener('load', function init() {
                 let nestedMap = new Map();
                 nestedMap.set("obj", models[i]);
                 nestedMap.set("willBeTop", isTop());
+                nestedMap.set("lastSavedTime",  0.0)
                 
                 let fruit_obj = `obj` + (i+1)
                 objects.set(fruit_obj, nestedMap);
 
+                // generate random x positions for fruits between (-1.0 to 1.0)
+                generateRandomsXPositions(objects.get(fruit_obj));
                 // generate random spawn time for fruits
                 generateRandomSpawnTime(objects.get(fruit_obj))
             }
-            // generate random x positions for fruits between (-1.0 to 1.0)
-            generateRandomsXPositions();
             
             onWindowResize();
             render()
@@ -337,8 +338,8 @@ function onMouseMove(e) {
         // first withinRnge is for x, second for y
         if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) {
             objectClicked = true
-            generateRandomsXPositions()
-            generateRandomSpawnTime( objects.get(fruit))
+            generateRandomsXPositions(objects.get(fruit))
+            generateRandomSpawnTime(objects.get(fruit))
             objects.get(fruit).set("willBeTop", isTop())
         }
     }
@@ -381,11 +382,9 @@ function withinRange(clipCoords, objPosition, index) {
 /**
  * Generates an array of random numbers -1 to 1 to be used for a fruits x position
  */
-function generateRandomsXPositions() {
-    for (let fruit of objects.keys()) {
-        let nestedMap = objects.get(fruit);
-        nestedMap.set("randXPos", Math.random() * 2 - 1); // set the "randXPos" key for the nested map
-    }
+function generateRandomsXPositions(fruit) {
+    // let nestedMap = objects.get(fruit);
+    fruit.set("randXPos", Math.random() * 2 - 1); // set the "randXPos" key for the nested map
 }
 
 function generateRandomSpawnTime(fruit) {
@@ -395,7 +394,6 @@ function generateRandomSpawnTime(fruit) {
     let resetTime = speed * 3.75
     fruit.set("speed", speed)  
     fruit.set("resetTime",  resetTime)
-    fruit.set("lastSavedTime",  0.0)
 
     console.log('banana', objects.get('obj1'))
     console.log('apple', objects.get('obj2'))
@@ -453,7 +451,7 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
 
     // might have to round seconds to the nearest decimal point (or maybe don't convert ms to seconds)
     if (ms - lastSavedTime >= resetTime) { // resetTime is a ms value
-        generateRandomsXPositions()
+        generateRandomsXPositions(obj)
         generateRandomSpawnTime(obj)
         obj.set('willBeTop', isTop());
         obj.set('lastSavedTime', ms);
