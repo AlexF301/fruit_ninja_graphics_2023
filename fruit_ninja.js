@@ -90,9 +90,9 @@ window.addEventListener('load', function init() {
 
 function setDifficulty() {
     if (difficulty === "NORMAL") {
-        speedFactor = .8
+        speedFactor = 1
     } else if (difficulty === "HARD") {
-        speedFactor = .5
+        speedFactor = .8
     }
 }
 
@@ -277,6 +277,7 @@ function loadModel(filename) {
             
             // Load the vertex coordinate data onto the GPU and associate with attribute
             let positions = Float32Array.from(raw_model.vertices);
+
             let posBuffer = gl.createBuffer(); // create a new buffer
             gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer); // bind to the new buffer
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW); // load the data into the buffer
@@ -313,6 +314,7 @@ function loadModel(filename) {
         })
         .catch(console.error);
 }
+
 /**
  * Initialize event handlers
  */
@@ -337,6 +339,8 @@ function onMouseMove(e) {
         let objPosition = objects.get(fruit).get("position");
         // first withinRnge is for x, second for y
         if (withinRange(clipCoords, objPosition, 0) && withinRange(clipCoords, objPosition, 1)) {
+            // TODO: if fruit is obj4 (rename fruit var)
+            console.log(fruit)
             objectClicked = true
             generateRandomsXPositions(objects.get(fruit))
             generateRandomSpawnTime(objects.get(fruit))
@@ -388,7 +392,7 @@ function generateRandomsXPositions(fruit) {
 }
 
 function generateRandomSpawnTime(fruit) {
-    let spawnTime = Math.random() * 3000; // generate a random spawn time
+    let spawnTime = Math.random() * 5000; // generate a random spawn time
     let timeOffset = Math.random() * 2000; // generate a random time offset
     let speed = (spawnTime + timeOffset) * speedFactor
     let resetTime = speed * 3.75
