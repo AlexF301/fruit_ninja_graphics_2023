@@ -14,5 +14,4 @@ window.addEventListener('load', function init() {
     // Get last score of user
     let score = localStorage.getItem("score");
     document.getElementById('score').innerHTML = score
-
 });

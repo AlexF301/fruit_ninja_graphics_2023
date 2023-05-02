@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
 
-        <!-- Give the page a title - make sure it is descriptive! -->
+        <!-- Title -->
         <title>Fruit Ninja</title>
 
         <!-- Load utilities and functions -->
@@ -12,7 +12,7 @@
         <script src="common/gl-matrix.js"></script>
         <script src="tools.js"></script>
 
-        <!-- Load the code for this example -->
+        <!-- Load the code for this HTML -->
         <script src="fruit_ninja.js"></script>
 
         <!-- Style the canvas -->
@@ -21,7 +21,6 @@
                 background-repeat: no-repeat;
                 background-size: cover;
                 overflow: hidden}
-
             #difficulty {
                 position: absolute;
                 bottom: 0;
@@ -39,7 +38,6 @@
             }
             #lives {
                 position: absolute;
-                font-size: large;
                 top: 0.5%;
                 right: 0;
                 color: white;
@@ -48,12 +46,19 @@
             }
             #lives-word {
                 position: absolute;
-                font-size: large;
                 top: 0.5%;
                 right: 2%;
                 color: white;
                 font-size: 36px;
                 padding-right: 0.2em;
+            }
+            #lost-life {
+                top: 0.5%;
+                left: 80%;
+                font-size: 36px;
+                position: absolute;
+                color: gold;
+                display: none;
             }
             #music {
                 top: 2%;
@@ -63,22 +68,12 @@
                 transform: scale(2);
             }
             #music-word {
-                font-size: larger;
                 top: 0.5%;
                 left: 2%;
                 margin-left: 0.5em;
                 font-size: 36px;
                 position: absolute;
                 color: white;
-            }
-            #lost-life {
-                font-size: larger;
-                top: 0.5%;
-                left: 80%;
-                font-size: 36px;
-                position: absolute;
-                color: gold;
-                display: none;
             }
         </style>
     </head>
