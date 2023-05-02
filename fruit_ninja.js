@@ -164,7 +164,7 @@ function loadModelWithTexture(model, img_path, index) {
                     });
                 }
             })
-            .catch(error => console.error(error)); // Log the error if any
+            .catch();
     });
 }
 
@@ -369,7 +369,7 @@ function loadModel(filename) {
             // Return the VAO and number of indices
             return [vao, raw_model.indices.length];
         })
-        .catch(console.error);
+        .catch();
 }
 
 
