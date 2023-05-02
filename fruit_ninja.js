@@ -28,8 +28,8 @@ let audio = new Audio('posty.mp3');
 // Lower the default game audio
 audio.volume = 0.1;
 
-// Speed of objects moving in ms. Bigger the speed the slower the fruit goes. Default of 5000
-let speedFactor = 5000;
+// Speed of objects moving in ms. Bigger the speed the slower the fruit goes. Default of 4500
+let speedFactor = 4500;
 
 // Save calculation of object sizing, stored in same order as the map
 let objectSize = [];
@@ -518,7 +518,7 @@ function generateRandomSpawnTime(fruit) {
     let spawnTime = Math.random() * speedFactor; // generate a random spawn time
     let timeOffset = Math.random() * speedFactor; // generate a random time offset
     let speed = (spawnTime + timeOffset)
-    let resetTime = speed * 3.75
+    let resetTime = speed * 3.25
     // set object values
     fruit.set("speed", speed)  
     fruit.set("resetTime",  resetTime)
