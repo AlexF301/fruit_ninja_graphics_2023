@@ -1,4 +1,3 @@
-// Fruit Ninja Game using WebGL
 // AUTHORS: Alexander Flores Sosa and Edwin Cojitambo
 'use strict';
     
