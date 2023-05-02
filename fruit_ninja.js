@@ -518,7 +518,7 @@ function generateRandomSpawnTime(fruit) {
     let spawnTime = Math.random() * speedFactor; // generate a random spawn time
     let timeOffset = Math.random() * speedFactor; // generate a random time offset
     let speed = (spawnTime + timeOffset)
-    let resetTime = speed * 3.25
+    let resetTime = speed * 3
     // set object values
     fruit.set("speed", speed)  
     fruit.set("resetTime",  resetTime)
