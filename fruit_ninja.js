@@ -639,8 +639,6 @@ function updateProjectionMatrix() {
     
     // Update projection matrix uniform
     let p = mat4.ortho(mat4.create(), left, right, bottom, top, near, far);
-    // let aspect = gl.canvas.width / gl.canvas.height;
-    // let p = mat4.ortho(mat4.create(), Math.PI / 10, aspect, 0.1, 10);
     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
 }
 
@@ -654,10 +652,6 @@ function onWindowResize() {
     gl.canvas.height = h;
     gl.viewport(0, 0, w, h);
     updateProjectionMatrix();
-    // gl.canvas.width = window.innerWidth;
-    // gl.canvas.height = window.innerHeight;
-    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    // updateProjectionMatrix();
 }
 
 
