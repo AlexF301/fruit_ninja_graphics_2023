@@ -10,7 +10,6 @@ window.addEventListener('load', function init() {
         let difficulty = document.getElementById('difficulty').value
         localStorage.setItem("userDifficulty", difficulty)
     })
-
     // Get last score of user
     let score = localStorage.getItem("score");
     document.getElementById('score').innerHTML = score
