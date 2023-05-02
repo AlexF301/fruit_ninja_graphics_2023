@@ -576,6 +576,7 @@ function moveObject(ms, obj) {
         if (obj.get("fruitName") !== "bomb") {
             lives.value -= 1;
             lives.innerHTML = lives.value
+            lostLifePopup();
         }
         console.log("fruit reset: ", obj.get("fruitName"))
     }
