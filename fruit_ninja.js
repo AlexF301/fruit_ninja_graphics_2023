@@ -630,9 +630,10 @@ function isGameOver() {
 function updateProjectionMatrix() {
     let left = -1
     let right = 1
-    let bottom = -1
     let aspect = gl.canvas.width / gl.canvas.height;
-    let top = (right - left) / aspect + bottom;
+    let height = (right - left) / aspect;
+    let top = height / 2;
+    let bottom = -height / 2;
     let near = 1
     let far = -1
     
