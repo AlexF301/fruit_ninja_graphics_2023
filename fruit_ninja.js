@@ -404,7 +404,6 @@ function onMouseMove(e) {
 
     for (let fruit of objects.keys()) {
         let objPosition = objects.get(fruit).get("position");
-        objects.get(fruit).set("fruit", fruit)
         let objSize = objects.get(fruit).get('sizeDimen')
         // first withinRnge is for x, second for y
 
