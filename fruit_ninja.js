@@ -9,7 +9,8 @@ const vec2 = glMatrix.vec2
 
 let modelViewMatrix = mat4.create()
 
-// { "Obj1", { obj: [vao, ind.length, texture] position: [x, y], randXPos: "x" , spawnTime: "ms"} }
+// Saves the references to each objected with nested attributes
+// ex : { "banana", { obj: [vao, ind.length, texture] position: [x, y], randXPos: x , spawnTime: ms, lastSavedTime: ms, willBeTop: boolean, clicked: boolean, sizeDimen: [x, y]}
 let objects = new Map()
 
 // user difficulty
@@ -20,13 +21,11 @@ let audio = new Audio('posty.mp3');
 // Lower the default game audio
 audio.volume = 0.1;
 
-// Default of 5000
+// Speed of objects moving in ms. Bigger the speed the slower the fruit goes. Default of 5000
 let speedFactor = 5000
 
-// save calculation of object sizing, this happens before the objects map gets created
+// Save calculation of object sizing, this happens before the objects map gets created. Stored in same order as the map
 let objectSize = []
-
-let bombReset = false;
 
 // Once the document is fully loaded run this init function.
 window.addEventListener('load', function init() {
@@ -60,8 +59,7 @@ window.addEventListener('load', function init() {
             // All models have now fully loaded
             // Now we can add user interaction events and render the scene
             // The provided models is an array of all of the loaded models
-            
-            // Each model is a VAO and a number of indices to draw    
+            // Each model is a VAO a number of indices to draw, and texture   
             for (let i = 0; i < models.length; i++) {
                 let nestedMap = new Map();
                 nestedMap.set("obj", models[i]);
@@ -108,6 +106,9 @@ window.addEventListener('load', function init() {
     score.value = 0
 });
 
+/**
+ * Sets the difficulty of the game based off the user's selection from the welcome screen 
+ */
 function setDifficulty() {
     if (difficulty === "NORMAL") {
         speedFactor = 2500
@@ -116,15 +117,27 @@ function setDifficulty() {
     }
 }
 
+/**
+ * Initalizes the models to be used during the game togeher with their textures
+ * 
+ * @returns the array of models to load
+ */
 function initModels() {
     let banana = loadModelWithTexture('fruits/banana/scaled_banana/banana_scaled.json', 'fruits/banana/original_banana/textures/Banana_skin_texture.jpg', 0)
     let apple = loadModelWithTexture('fruits/apple/apple.json', 'fruits/apple/apple-photogrammetry/textures/Apple_albedo.jpeg', 1)
     let watermelon = loadModelWithTexture('fruits/watermelon-fresh/Watermelon.json', 'fruits/watermelon-fresh/textures/food_0001_color_2k.jpeg', 2)
     let bomb = loadModelWithTexture('bomb/bomb.json', 'bomb/textures/bomb_basecol.png', 3)
     return [banana, apple, watermelon, bomb];
-    // return [banana];
 }
 
+/**
+ * Loads the the models togehter with their textures
+ * 
+ * @param model : the file of the model to load
+ * @param img_path : the texture file to load along with the model
+ * @param index : index to hold texture
+ * @returns an array holding reference to the [vao, indices.length, texture]
+ */
 function loadModelWithTexture(model, img_path, index) {
     let image = new Image();
     image.src = img_path;
@@ -300,6 +313,7 @@ function pauseOrPlayMusic() {
 
 /**
  * Load a model from a file into a VAO and return the VAO.
+ * @param filename : the file to load
  */
 function loadModel(filename) {
     return fetch(filename)
@@ -354,7 +368,8 @@ function loadModel(filename) {
 /**
  * Calculates the max of the x and y coordinates of an object. 
  * The values are pushed into the objectSize array which get added
- * to an obj (in the map) after the vao, indice length and texture is added
+ * to an obj (in the map) after the vao, indice length and texture loaded
+ * 
  * @param vertices : the Float32Array of the model's vertices
  */
 function calcObjectSize(vertices) {
@@ -369,10 +384,10 @@ function calcObjectSize(vertices) {
         // y coordinates
         yArray.push(vertices[i+1])
     }
-
+    // Get the max value of each positional array of x and y's
     let xOffset = Math.max(...xArray)
     let yOffset = Math.max(...yArray)
-
+    // save the coordinates into the objectsSize list. 
     objectSize.push([xOffset, yOffset])
 }
 
@@ -385,7 +400,10 @@ function initEvents() {
     document.getElementById('music').addEventListener('change', pauseOrPlayMusic);
 }
 
-
+/**
+ * When the mouse is pressed down, move the mouse
+ * @param e : the event object
+ */
 function onMouseDown(e) {
     e.preventDefault()
     gl.canvas.addEventListener('mousemove', onMouseMove)
@@ -394,6 +412,12 @@ function onMouseDown(e) {
 // used to not slice bomb multiple times within milliseconds
 let lastClickTime = 0;
 
+/**
+ * When the mouse is moved, uses clip coordiantes to check if the mouse has hovered over
+ * an object on the canvas. This indicates that the object has been slashed through
+ * 
+ * @param e : the event object
+ */
 function onMouseMove(e) {
     e.preventDefault()
     // Get mouse x and y in clip coordinates
@@ -402,13 +426,14 @@ function onMouseMove(e) {
     let currentTime = performance.now()
 
     for (let fruit of objects.keys()) {
-        let objPosition = objects.get(fruit).get("position");
-        let objSize = objects.get(fruit).get('sizeDimen')
-        // first withinRnge is for x, second for y
+        let object = objects.get(fruit)
+        let objPosition = object.get("position");
+        let objSize = object.get('sizeDimen')
 
+        // check if mouse coordinates are within range of an object
         if (withinRange(clipCoords, objPosition, objSize)) {
             // lose a life if bomb is sliced
-            if (objects.get(fruit).get("fruitName") === "bomb") {
+            if (object.get("fruitName") === "bomb") {
                 // stops issue of bomb lag
                 if (currentTime - lastClickTime >= 500) {
                     let lives = document.getElementById('lives');
@@ -421,16 +446,19 @@ function onMouseMove(e) {
                 }
 
             }
-            objects.get(fruit).set("clicked", true)
-            generateRandomsXPositions(objects.get(fruit))
-            generateRandomSpawnTime(objects.get(fruit))
-            objects.get(fruit).set("willBeTop", isTop())
+            object.set("clicked", true)
+            generateRandomsXPositions(object)
+            generateRandomSpawnTime(object)
+            object.set("willBeTop", isTop())
         }
     }
     gl.canvas.addEventListener('mouseup', onMouseUp)
 }
 
-
+/**
+ * When the mouse is released, remove the event listeners for mousemove and up
+ * @param e : event
+ */
 function onMouseUp(e) {
     e.preventDefault()
 
@@ -452,7 +480,7 @@ function lostLifePopup() {
 
 
 /**
- * check if clip coodinates are in the same range as object size offset
+ * check if clip coodinates are in the same range as objects position + size offset
  */
 function withinRange(clipCoords, objPosition, objDimen) {
     let [clipX, clipY] = clipCoords
@@ -461,19 +489,25 @@ function withinRange(clipCoords, objPosition, objDimen) {
 
     if (clipX > posX - offsetX && clipX < posX + offsetX &&
         clipY > posY && clipY < posY + offsetY) {
-        console.log('object sliced')
         return true
     }
     return false
 }
   
 /**
- * Generates an array of random numbers -1 to 1 to be used for a fruits x position
+ * Generates a random number -1 to 1 to be used for a fruits x position
+ * 
+ * @param fruit : the object to give a new x position to
  */
 function generateRandomsXPositions(fruit) {
     fruit.set("randXPos", Math.random() * 2 - 1); // set the "randXPos" key for the nested map
 }
 
+/**
+ * genereates a new spawn time/speed for an object
+ * 
+ * @param fruit the object to give a new spawn time/speed to
+ */
 function generateRandomSpawnTime(fruit) {
     let spawnTime = Math.random() * speedFactor; // generate a random spawn time
     let timeOffset = Math.random() * speedFactor; // generate a random time offset
@@ -486,6 +520,8 @@ function generateRandomSpawnTime(fruit) {
 /**
  * Generates a random number and uses it to decide if a fruit should spawn on top
  * of the screen or the bottom
+ * 
+ * @returns boolean indicating wheter an object should spawn from the top or bottom
  */
 function isTop() {
     let randomY = Math.random();
@@ -497,6 +533,9 @@ function isTop() {
 
 /**
  * Updates the x and y positions of an object
+ * 
+ * @param object : the object to save new positions to 
+ * @param position : the new positions to save. an array of [x,y]
  */
 function updateObjectPosition(object, position) {
     object.set('position', position)
@@ -505,11 +544,13 @@ function updateObjectPosition(object, position) {
 
 /**
  * Moves the object across the screen
+ * 
+ * @param ms : time in milliseconds to animate objects
+ * @param obj : the object to translate and rotate
  */
-function moveObject(ms, obj) { // need a variable of spawn location, and speed depending on difficulty
+function moveObject(ms, obj) {
     mat4.identity(modelViewMatrix)
-    // bigger the speed the slower the fruit goes
-    // easy default
+
     let lives = document.getElementById('lives');
     let score = document.getElementById('score');
     let speed = obj.get('speed')
@@ -545,9 +586,6 @@ function moveObject(ms, obj) { // need a variable of spawn location, and speed d
         }
         console.log("fruit reset: ", obj.get("fruitName"))
     }
-
-
-
     // Increase score, and reset fruit that was clicked values
     if (obj.get('clicked')) {
         obj.set('clicked', false);
@@ -606,8 +644,8 @@ function render(ms) {
 
     // The ms value is the number of miliseconds since some arbitrary time in the past
     // If it is not provided (i.e. render is directly called) then this if statement will grab the current time
-
     if (!ms) { ms = performance.now()}
+    
     for (let fruitKey of objects.keys()) {
         let object = objects.get(fruitKey);
         let [vao, count, texture] = object.get("obj");
