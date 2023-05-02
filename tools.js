@@ -17,7 +17,7 @@
  * The indices argument is an array or typed array for the indices.
  */
 function createVao(gl, attributes, indices) {
-    coords = Float32Array.from(coords);
+    // coords = Float32Array.from(coords);
 
     // Create and bind VAO
     let vao = gl.createVertexArray(), buf;
