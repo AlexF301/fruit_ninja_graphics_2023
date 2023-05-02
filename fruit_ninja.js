@@ -45,10 +45,11 @@ window.addEventListener('load', function init() {
     if (!gl) { window.alert("WebGL isn't available"); return; }
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND)
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINsUS_SRC_ALPHA);
 
     // Configure WebGL
     gl.viewport(0, 0, canvas.width, canvas.height); // this is the region of the canvas we want to draw on (all of it)
-    gl.clearColor(1.0, 1.0, 1.0, 0.0); // setup the background color
+    gl.clearColor(0.0, 0.0, 0.0, 0.0); // setup the background color
     
     // Initialize the WebGL program and data
     gl.program = initProgram();
@@ -227,7 +228,7 @@ function initProgram() {
             vLightVector = light.w == 1.0 ? P.xyz - light.xyz : light.xyz;
             vEyeVector = -P.xyz;
 
-            gl_Position = P;
+            gl_Position = uProjectionMatrix * P;
 
             vTexCoord = aTexCoord;
         }`
@@ -518,7 +519,7 @@ function generateRandomSpawnTime(fruit) {
     let spawnTime = Math.random() * speedFactor; // generate a random spawn time
     let timeOffset = Math.random() * speedFactor; // generate a random time offset
     let speed = (spawnTime + timeOffset)
-    let resetTime = speed * 3
+    let resetTime = speed * 2.85
     // set object values
     fruit.set("speed", speed)  
     fruit.set("resetTime",  resetTime)
@@ -627,8 +628,18 @@ function isGameOver() {
  * Update the projection matrix
  */
 function updateProjectionMatrix() {
+    let left = -1
+    let right = 1
+    let bottom = -1
     let aspect = gl.canvas.width / gl.canvas.height;
-    let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, 10);
+    let top = (right - left) / aspect + bottom;
+    let near = 1
+    let far = -1
+    
+    // Update projection matrix uniform
+    let p = mat4.ortho(mat4.create(), left, right, bottom, top, near, far);
+    // let aspect = gl.canvas.width / gl.canvas.height;
+    // let p = mat4.ortho(mat4.create(), Math.PI / 10, aspect, 0.1, 10);
     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
 }
 
@@ -637,10 +648,15 @@ function updateProjectionMatrix() {
  * Keep the canvas sized to the window.
  */
 function onWindowResize() {
-    gl.canvas.width = window.innerWidth;
-    gl.canvas.height = window.innerHeight;
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    let [w, h] = [window.innerWidth, window.innerHeight];
+    gl.canvas.width = w;
+    gl.canvas.height = h;
+    gl.viewport(0, 0, w, h);
     updateProjectionMatrix();
+    // gl.canvas.width = window.innerWidth;
+    // gl.canvas.height = window.innerHeight;
+    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    // updateProjectionMatrix();
 }
 
 
