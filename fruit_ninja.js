@@ -66,6 +66,17 @@ window.addEventListener('load', function init() {
                 nestedMap.set("willBeTop", isTop());
                 nestedMap.set("lastSavedTime",  0.0)
                 nestedMap.set('sizeDimen', objectSize[i])
+                let fruitName
+                if (i === 0) {
+                    fruitName = "banana"
+                } else if (i === 1) {
+                    fruitName = "apple"
+                } else if (i === 2) {
+                    fruitName = "watermelon"
+                } else if (i === 3) {
+                    fruitName = "bomb"
+                }
+                nestedMap.set("fruitName", fruitName)
                 
                 let fruit_obj = `obj` + (i+1)
                 objects.set(fruit_obj, nestedMap);
@@ -73,26 +84,8 @@ window.addEventListener('load', function init() {
                 // generate random x positions for fruits between (-1.0 to 1.0)
                 generateRandomsXPositions(objects.get(fruit_obj));
                 // generate random spawn time for fruits
-                generateRandomSpawnTime(objects.get(fruit_obj)) 
-            
-            }
-            // set fruitName of each object
-            let fruitName;
-            let counter = 0;
-            for (let fruit of objects.keys()) {
-                counter += 1
-                if (counter === 1) {
-                    fruitName = "banana"
-                } else if (counter === 2) {
-                    fruitName = "apple"
-                } else if (counter === 3) {
-                    fruitName = "watermelon"
-                } else if (counter === 4) {
-                    fruitName = "bomb"
-                }
-                objects.get(fruit).set("fruitName", fruitName)
-            }
-            
+                generateRandomSpawnTime(objects.get(fruit_obj))   
+            }            
             onWindowResize();
             render()
         }
