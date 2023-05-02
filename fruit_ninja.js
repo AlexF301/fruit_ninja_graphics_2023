@@ -63,12 +63,7 @@ window.addEventListener('load', function init() {
             // All models have now fully loaded
             // Now we can add user interaction events and render the scene
             // The provided models is an array of all of the loaded models
-<<<<<<< Updated upstream
-            
-            // Each model is a VAO and a number of indices to draw    
-=======
             // Each model is a VAO a number of indices to draw, and texture   
->>>>>>> Stashed changes
             for (let i = 0; i < models.length; i++) {
                 let nestedMap = new Map();
                 nestedMap.set("obj", models[i]);
@@ -417,52 +412,25 @@ function onMouseDown(e) {
     gl.canvas.addEventListener('mousemove', onMouseMove)
 }
 
-<<<<<<< Updated upstream
-// used to not slice bomb multiple times within milliseconds
-let lastClickTime = 0;
-
-=======
 /**
  * When the mouse is moved, uses clip coordiantes to check if the mouse has hovered over
  * an object on the canvas. This indicates that the object has been slashed through
  * 
  * @param {*} e : the event object
  */
->>>>>>> Stashed changes
 function onMouseMove(e) {
     e.preventDefault()
     // Get mouse x and y in clip coordinates
     let clipCoords = [2*e.offsetX/(gl.canvas.width-1)-1, 1-2*e.offsetY/(gl.canvas.height-1)];
-<<<<<<< Updated upstream
-    // current time of click (ms)
-    let currentTime = performance.now()
-
-    for (let fruit of objects.keys()) {
-        let objPosition = objects.get(fruit).get("position");
-        let objSize = objects.get(fruit).get('sizeDimen')
-        // first withinRnge is for x, second for y
-=======
 
     for (let fruit of objects.keys()) {
         let object = objects.get(fruit)
         let objPosition = object.get("position");
         let objSize = object.get('sizeDimen')
->>>>>>> Stashed changes
 
         // check if mouse coordinates are within range of an object
         if (withinRange(clipCoords, objPosition, objSize)) {
             // lose a life if bomb is sliced
-<<<<<<< Updated upstream
-            if (objects.get(fruit).get("fruitName") === "bomb") {
-                // stops issue of bomb lag
-                if (currentTime - lastClickTime >= 500) {
-                    let lives = document.getElementById('lives');
-                    lives.value -= 1;
-                    lives.innerHTML = lives.value
-                    lastClickTime = Math.round(currentTime)
-                }
-
-=======
             let name = object.get("fruitName")
             if (name === "bomb") {
                 // since bomb is being sliced multiple times because of lag
@@ -470,7 +438,6 @@ function onMouseMove(e) {
                 let lives = document.getElementById('lives');
                 lives.value -= 1;
                 lives.innerHTML = lives.value
->>>>>>> Stashed changes
             }
             object.set("clicked", true)
             generateRandomsXPositions(object)
