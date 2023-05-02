@@ -416,6 +416,9 @@ function onMouseMove(e) {
                     lives.value -= 1;
                     lives.innerHTML = lives.value
                     lastClickTime = Math.round(currentTime)
+                    
+                    // show lost life popup
+                    lostLifePopup();
                 }
 
             }
@@ -435,6 +438,19 @@ function onMouseUp(e) {
     this.removeEventListener('mousemove', onMouseMove)
     this.removeEventListener('mouseup', onMouseUp);
 }
+
+
+/**
+ * Creates a popup to alert user that they lost a life
+ */
+function lostLifePopup() {
+    let lostLife = document.getElementById('lost-life')
+    lostLife.style.display = 'block'
+    setTimeout(() => {
+        lostLife.style.display = 'none';
+    }, 1000);
+}
+
 
 /**
  * check if clip coodinates are in the same range as object size offset
