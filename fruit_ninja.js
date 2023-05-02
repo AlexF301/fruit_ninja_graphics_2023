@@ -481,7 +481,7 @@ function withinRange(clipCoords, objPosition, objDimen) {
     let [offsetX, offsetY] = objDimen
 
     if (clipX > posX - offsetX && clipX < posX + offsetX &&
-        clipY > posY && clipY < posY + offsetY) {
+        clipY > posY - offsetY / 2 && clipY < posY + offsetY) {
         return true
     }
     return false
