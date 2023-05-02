@@ -90,9 +90,6 @@ window.addEventListener('load', function init() {
             render()
         }
     );
-    // set initial lives of user (TODO: Replace based on difficulty)
-    let lives = document.getElementById('lives')
-    lives.value = 3
 
     // set initial score of user
     let score = document.getElementById('score')
@@ -100,15 +97,25 @@ window.addEventListener('load', function init() {
 });
 
 /**
- * Sets the difficulty of the game based off the user's selection from the welcome screen 
+ * Sets the difficulty of the game based off the user's selection from the welcome screen. A harder
+ * difficulty will result in increased speed of objects and lower lives
  */
 function setDifficulty() {
+    // set initial lives of user (TODO: Replace based on difficulty)
+    let lives = document.getElementById('lives')
+    lives.value = 5
+    lives.innerHTML = "5"
     if (difficulty === "NORMAL") {
         speedFactor = 2500
+        lives.value = 4
+        lives.innerHTML = "4"
     } else if (difficulty === "HARD") {
         speedFactor = 1000
+        lives.value = 3
+        lives.innerHTML = "3"
     }
 }
+
 
 /**
  * Initalizes the models to be used during the game togeher with their textures
@@ -578,7 +585,6 @@ function moveObject(ms, obj) {
             lives.innerHTML = lives.value
             lostLifePopup();
         }
-        console.log("fruit reset: ", obj.get("fruitName"))
     }
     // Increase score, and reset fruit that was clicked values
     if (obj.get('clicked')) {
