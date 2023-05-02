@@ -114,11 +114,11 @@ function setDifficulty() {
     lives.value = 5
     lives.innerHTML = "5"
     if (difficulty === "NORMAL") {
-        speedFactor = 2500
+        speedFactor = 2750
         lives.value = 4
         lives.innerHTML = "4"
     } else if (difficulty === "HARD") {
-        speedFactor = 1000
+        speedFactor = 1750
         lives.value = 3
         lives.innerHTML = "3"
     }
